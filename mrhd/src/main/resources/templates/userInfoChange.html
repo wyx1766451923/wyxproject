@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Demo</title>
+    <link rel="stylesheet" href="../static/layui/css/layui.css">
+
+    <script src="../static/layui/layui.js"></script>
+    <script src="../static/js/common.js"></script>
+    <style>
+        .demo-login-container{width: 320px; margin: 21px auto 0;}
+        .demo-login-other .layui-icon{position: relative; display: inline-block; margin: 0 2px; top: 2px; font-size: 26px;}
+        .info{
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            /*background: url(../static/layui/img/bg.jpg) no-repeat;*/
+            /*background-size:100% 100%;*/
+            /*background-attachment:fixed;*/
+        }
+        .layui-form{
+            width: 400px;
+            height: 500px;
+            display: flex;
+            margin-top: 80px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: 5px 5px 30px pink;
+        }
+        .layui-form-item{
+            display: flex;
+            align-items: center;
+        }
+        .avtor{
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="info">
+        <form class="layui-form">
+            <h2 class="title">基本资料</h2>
+            <div class="demo-login-container">
+                <div class="layui-form-item">
+                    <div class="avtor">
+                        <button type="button" class="layui-btn" id="ID-upload-demo-btn">
+                            <i class="layui-icon layui-icon-upload"></i> 头像
+                        </button>
+                        <div style="width: 132px;">
+                            <div class="layui-upload-list">
+                                <img class="layui-upload-img" id="ID-upload-demo-img" style="width: 100%; height: 92px;">
+                                <div id="ID-upload-demo-text"></div>
+                            </div>
+                            <div class="layui-progress layui-progress-big" lay-showPercent="yes" lay-filter="filter-demo">
+                                <div class="layui-progress-bar" lay-percent=""></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div>用户名：</div>
+                    <div class="layui-input-wrap">
+                        <div class="layui-input-prefix">
+                            <i class="layui-icon layui-icon-username"></i>
+                        </div>
+                        <input type="text" id="username" name="username" value="" lay-verify="required" placeholder="用户名" lay-reqtext="请填写用户名" autocomplete="off" class="layui-input" lay-affix="clear" disabled>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div>昵&nbsp;&nbsp;&nbsp;&nbsp;称：</div>
+                    <div class="layui-input-wrap">
+                        <div class="layui-input-prefix">
+                            <i class="layui-icon layui-icon-username"></i>
+                        </div>
+                        <input type="text" id="nickname" name="nickname" value="" lay-verify="required" placeholder="昵称" lay-reqtext="请填写昵称" autocomplete="off" class="layui-input" lay-affix="clear">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div>手&nbsp;&nbsp;&nbsp;&nbsp;机： </div>
+                    <div class="layui-input-wrap">
+
+                        <div class="layui-input-prefix">
+                            <i class="layui-icon layui-icon-cellphone"></i>
+                        </div>
+                        <input type="text" id="phone" name="phone" value="" lay-verify="required" placeholder="手机号" lay-reqtext="请填写手机号" autocomplete="off" class="layui-input" lay-affix="clear">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div>密&nbsp;&nbsp;&nbsp;&nbsp;码： </div>
+                    <div class="layui-input-wrap">
+
+                        <div class="layui-input-prefix">
+                            <i class="layui-icon layui-icon-password"></i>
+                        </div>
+                        <input type="password" id="password" name="password" value="" lay-verify="required" placeholder="密码" lay-reqtext="请填写密码" autocomplete="off" class="layui-input" lay-affix="eye">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <button class="layui-btn layui-btn-fluid" lay-submit lay-filter="demo-change">修改</button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+
+
+<script>
+    layui.use(function(){
+        var table = layui.table;
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var $ = layui.$;
+        var upload = layui.upload;
+        var param = {};
+        var element = layui.element;
+        var imgIsChanged = false;
+        $(document).ready( function(){
+            var userinfo = JSON.parse(localStorage.getItem("loginuser"));
+            console.log(userinfo.username);
+            $("#username").val(userinfo.username);
+            $("#nickname").val(userinfo.nickname);
+            $("#phone").val(userinfo.phone);
+            $('#ID-upload-demo-img').attr('src', ctxImg+userinfo.imageurl);
+            element.progress('filter-demo', '100%');
+
+        })
+        uploadInst = upload.render({
+            elem: '#ID-upload-demo-btn',
+            url: ctx+"/upload", // 此处用的是第三方的 http 请求演示，实际使用时改成您自己的上传接口即可。
+            data:{
+                type:3//用户资料
+            },
+            before: function(obj){
+                // 预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result){
+                    $('#ID-upload-demo-img').attr('src', result); // 图片链接（base64）
+                });
+
+                element.progress('filter-demo', '0%'); // 进度条复位
+                layer.msg('上传中', {icon: 16, time: 0});
+            },
+            done: function(res){
+                // 若上传失败
+                if(!res.success){
+                    return layer.msg('上传失败');
+                }
+                // 上传成功的一些操作
+                param.imageurl = res.data
+                $('#ID-upload-demo-text').html(''); // 置空上传失败的状态
+            },
+            error: function(){
+                // 演示失败状态，并实现重传
+                var demoText = $('#ID-upload-demo-text');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function(){
+                    uploadInst.upload();
+                });
+            },
+            // 进度条
+            progress: function(n, elem, e){
+                element.progress('filter-demo', n + '%'); // 可配合 layui 进度条元素使用
+                if(n == 100){
+                    layer.msg('上传完毕', {icon: 1});
+                }
+            },
+            choose: function(obj){
+                // 将每次选择的文件追加到文件数组
+                //var files = obj.pushFile();
+                imgIsChanged = true;
+                param.imgIsChanged = imgIsChanged;
+            }
+        });
+        form.on('submit(demo-change)', function(data){
+            var userinfo = JSON.parse(localStorage.getItem("loginuser"));
+            param.id = userinfo.id;
+            param.oldImageurl = userinfo.imageurl;
+            var field = data.field; // 获取表单字段值
+            field = {...field,...param,};
+            console.log(field)
+            $.ajax({
+                url: ctx + "/user/userChangeInfo",
+                data: JSON.stringify(field),
+                headers:{
+                    //发送请求传递参数的格式 415错误：请求参数的格式不对
+                    "content-type": "application/json"
+                },
+                type: 'post',
+                dataType: 'json',
+                success: function(resp) {
+                    if(resp.success) {
+                        localStorage.removeItem("usertoken");
+                        layer.alert("修改成功，请重新登陆",function (){
+                            top.location.href = ctx + '/login'
+                        })
+                    } else {
+                        layer.alert(resp.message,{icon:5});
+                    }
+
+                }
+            })
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

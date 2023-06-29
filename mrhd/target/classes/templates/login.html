@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>后台管理系统</title>
+    <link rel="stylesheet" href="../static/layui/css/layui.css">
+    <script src="../static/layui/layui.js"></script>
+    <script src="../static/js/common.js"></script>
+    <style>
+        html,body{
+            height: 100%;
+            width: 100%;
+        }
+        .demo-login-container{width: 320px; margin: 21px auto 0;}
+        .demo-login-other .layui-icon{position: relative; display: inline-block; margin: 0 2px; top: 2px; font-size: 26px;}
+        .login{
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            background: url(../static/layui/img/bg.jpg) no-repeat;
+            background-size:100% 100%;
+            background-attachment:fixed;
+        }
+        .layui-form{
+            width: 400px;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: 5px 5px 30px pink;
+        }
+        .title{
+
+        }
+    </style>
+</head>
+<body>
+    <div class="login">
+        <form class="layui-form">
+            <h2 class="title">美容小程序后台管理系统</h2>
+            <div class="demo-login-container">
+                <div class="layui-form-item">
+                    <div class="layui-input-wrap">
+
+                        <div class="layui-input-prefix">
+                            <i class="layui-icon layui-icon-username"></i>
+                        </div>
+                        <input type="text" id="username" name="username" value="" lay-verify="required" placeholder="用户名" lay-reqtext="请填写用户名" autocomplete="off" class="layui-input" lay-affix="clear">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-wrap">
+                        <div class="layui-input-prefix">
+                            <i class="layui-icon layui-icon-password"></i>
+                        </div>
+                        <input type="password" id="password" name="password" value="" lay-verify="required" placeholder="密   码" lay-reqtext="请填写密码" autocomplete="off" class="layui-input" lay-affix="eye">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <button class="layui-btn layui-btn-fluid" lay-submit lay-filter="demo-login">登录</button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+    <script type="text/javascript">
+        layui.use(function(){
+            var $ = layui.jquery
+            var form = layui.form;
+            var layer = layui.layer;
+            // 提交事件
+            form.on('submit(demo-login)', function(data){
+                var field = data.field; // 获取表单字段值
+                $.ajax({
+                    url: ctx + "/login",
+                    data: JSON.stringify(field),
+                    headers:{
+                        //发送请求传递参数的格式 415错误：请求参数的格式不对
+                        "content-type": "application/json"
+                    },
+                    type: 'post',
+                    dataType: 'json',
+                    success: function(resp) {
+                        if(resp.success) {
+                            localStorage.setItem("usertoken", resp.data.userToken);
+                            localStorage.setItem("loginuser", JSON.stringify(resp.data.loginUser));
+                            location.href = ctx + '/index'
+                        } else {
+                            layer.alert(resp.message,{icon:5});
+                        }
+
+                    }
+                })
+                return false;
+            });
+        });
+    </script>
+
+
+</body>
+</html>

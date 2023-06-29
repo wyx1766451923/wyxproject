@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.cqut.mapper.ProjectMapper">
+
+    <select id="getProinfos" resultMap="ProjectResultMap">
+        select
+            p.*,
+            pt.name projecttypename,
+            i.imageurl,i.imagetitle,i.imagetype,i.imagestate,
+            b.busname,b.busaddress,b.busexplain,b.bustell,b.servertime
+        from project p
+        left join projecttype pt on p.protypeid = pt.id
+        left join image i on p.imageid = i.id
+        left join business b on p.busid = b.id
+    </select>
+    <resultMap id="ProjectResultMap" type="cn.cqut.domain.Project">
+        <id column="id"  property="id"/>
+        <result column="proexplain" property="proexplain"/>
+        <result column="proprice" property="proprice"/>
+        <result column="prostep" property="prostep"/>
+        <result column="protypeid" property="protypeid"/>
+        <result column="proname" property="proname"/>
+        <result column="imageid" property="imageid"/>
+        <result column="prostatus" property="prostatus"/>
+        <result column="busid" property="busid"/>
+        <result column="tecid" property="tecid"/>
+        <association property="image" javaType="cn.cqut.domain.Image">
+            <id column="imageid"  property="id"/>
+            <result column="imageurl" property="imageurl"/>
+            <result column="imagetitle" property="imagetitle"/>
+            <result column="imagetype" property="imagetype"/>
+            <result column="imagestate" property="imagestate"/>
+        </association>
+        <association property="projectType" javaType="cn.cqut.domain.ProjectType">
+            <id column="protypeid"  property="id"/>
+            <result column="projecttypename" property="name"/>
+        </association>
+        <association property="business" javaType="cn.cqut.domain.Business">
+            <id column="busid"  property="id"/>
+            <result column="busname" property="busname"/>
+            <result column="busaddress" property="busaddress"/>
+            <result column="busexplain" property="busexplain"/>
+            <result column="bustell" property="bustell"/>
+            <result column="servertime" property="servertime"/>
+        </association>
+    </resultMap>
+    <select id="getProinfosCount" resultType="java.lang.Long">
+        select
+            count(*)
+        from project p
+        left join projecttype pt on p.protypeid = pt.id
+        left join image i on p.imageid = i.id
+        left join business b on p.busid = b.id
+        <include refid="whereCaluse" />
+    </select>
+    <select id="getProinfosPage" resultMap="ProjectResultMap">
+        select
+            p.*,
+            pt.name projecttypename,
+            i.imageurl,i.imagetitle,i.imagetype,i.imagestate,
+            b.busname,b.busaddress,b.busexplain,b.bustell,b.servertime
+        from project p
+        left join projecttype pt on p.protypeid = pt.id
+        left join image i on p.imageid = i.id
+        left join business b on p.busid = b.id
+    <include refid="whereCaluse" />
+    <include refid="orderByCaluse"></include>
+    limit #{startIndex},#{limit}
+    </select>
+    <select id="listByIsOwn" resultType="cn.cqut.domain.Project">
+        select
+        p.id, p.proname
+        <if test="tecid != null">
+            ,(select 1 from tecpro where tecid = #{tecid} and proid = p.id) isOwn
+        </if>
+        from project p
+
+    </select>
+    <sql id="whereCaluse">
+        <where>
+            <if test="propriceMin != null">
+                and p.proprice &gt;= #{propriceMin}
+            </if>
+            <if test="propriceMax != null">
+                and p.proprice &lt;= #{propriceMax}
+            </if>
+            <if test="protypeid != null">
+                and p.protypeid = #{protypeid}
+            </if>
+            <if test="proname != null and proname != ''">
+                and p.proname like concat('%',#{proname},'%')
+            </if>
+            <if test="prostatus != null">
+                and p.prostatus = #{prostatus}
+            </if>
+            <if test="busid != null">
+                and p.busid = #{busid}
+            </if>
+        </where>
+    </sql>
+    <sql id="orderByCaluse">
+        <if test="orderField != null and orderField != ''">
+            order by ${orderField}
+            <if test="orderType == 'desc' or orderType == 'DESC'">
+                ${orderType}
+            </if>
+        </if>
+    </sql>
+</mapper>

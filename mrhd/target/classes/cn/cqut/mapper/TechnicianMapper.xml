@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.cqut.mapper.TechnicianMapper">
+    <delete id="deleteBatchTecproByTecid">
+        delete from tecpro where tecid = #{tecid}
+
+    </delete>
+
+    <!-- 查询技师列表（连表查询所属的公司） -->
+    <select id="getTechnicians" resultMap="TechnicianResultMap">
+        select
+            t.*,
+            b.busname,b.busaddress,b.busexplain,b.bustell,b.servertime
+        from technician t
+                 left join business b on t.busid = b.id
+    </select>
+
+    <resultMap id="TechnicianResultMap" type="cn.cqut.domain.Technician">
+        <id column="id" property="id" />
+        <result column="techexplain" property="techexplain" />
+        <result column="techname" property="techname" />
+        <result column="busid" property="busid" />
+        <result column="imageurl" property="imageurl" />
+        <association property="business" javaType="cn.cqut.domain.Business">
+            <id column="busid" property="id" />
+            <result column="busname" property="busname" />
+            <result column="busaddress" property="busaddress" />
+            <result column="busexplain" property="busexplain" />
+            <result column="bustell" property="bustell" />
+            <result column="servertime" property="servertime" />
+        </association>
+        <!--
+            一对多关联：嵌套查询写法
+                将id属性值传入 selectProjectByTecId 这个查询语句作为条件，执行查询语句
+                并将查询得到的结果封装成List<Project>
+        -->
+        <collection property="projects" ofType="cn.cqut.domain.Project"
+                    select="selectProjectByTecId" column="id">
+        </collection>
+    </resultMap>
+
+    <select id="selectProjectByTecId" parameterType="long" resultType="cn.cqut.domain.Project">
+        select p.id, p.proname, p.proprice
+        from tecpro tp
+                 left join project p on tp.proid = p.id
+        where tp.tecid = #{tecid}
+    </select>
+
+
+    <!-- 分页 查询总条数 -->
+    <select id="getTechniciansCount" resultType="java.lang.Long">
+        select
+        count(*)
+        from technician t
+        left join business b on t.busid = b.id
+        <include refid="whereCaluse"/>
+    </select>
+    <!-- 分页 查询当前页的数据集合 -->
+    <select id="getTechniciansPage" resultMap="TechnicianResultMap">
+        select
+        t.*,
+        b.busname,b.busaddress,b.busexplain,b.bustell,b.servertime
+        from technician t
+        left join business b on t.busid = b.id
+        <include refid="whereCaluse"/>
+        <include refid="orderByCaluse"></include>
+        limit #{startIndex}, #{limit}
+    </select>
+    <sql id="whereCaluse">
+        <where>
+            <if test="techname != null and techname != ''">
+                and t.techname like concat('%',#{techname},'%')
+            </if>
+            <if test="busid != null">
+                and t.busid = #{busid}
+            </if>
+            <if test="proname != null and proname != ''">
+                and t.id in (
+                select tp.tecid from tecpro tp left join project p on tp.proid = p.id where p.proname like concat('%',#{proname},'%')
+                )
+            </if>
+            <if test="protypeid != null">
+                and t.id in (
+                select tp.tecid from tecpro tp left join project p on tp.proid = p.id where p.protypeid = #{protypeid}
+                )
+            </if>
+        </where>
+    </sql>
+    <sql id="orderByCaluse">
+        <if test="orderField != null and orderField != ''">
+            order by ${orderField}
+            <if test="orderType == 'desc' or orderType == 'DESC'">
+            ${orderType}
+            </if>
+        </if>
+    </sql>
+    <insert id="insertToTecpro">
+        insert tecpro(tecid,proid) values
+            <foreach collection="proids" item="proid" separator=",">
+                (#{tecid},#{proid})
+            </foreach>
+    </insert>
+</mapper>

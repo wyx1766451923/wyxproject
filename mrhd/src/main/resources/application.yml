@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/cosmetology?serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+
+#mapper的xml文件路径
+mybatis-plus:
+  mapper-locations: classpath:cn/cqut/mapper/*Mapper.xml
+
+#mybatis的日志输出
+logging:
+  level:
+    cn.cqut: trace
+
+file:
+  upload:
+    img:
+      project: /static/img/project/
+      technician: /static/img/technician/
+      user: /static/img/user/
+
+wechat:
+  miniProgram:
+    appid: wx54932d7e715c6c43
+    appSecret: c2fa1f317f648101d44a42aa5bf1f88c
+    code2SessionUrl: https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code

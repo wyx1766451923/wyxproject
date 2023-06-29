@@ -1,0 +1,38 @@
+/* pages/detail/detail.wxss */
+.img image{
+  height: 150px;
+}
+.info{
+  font-size: 16px;
+  padding-bottom:5px ;
+  display: flex;
+}
+.name{
+  padding-right: 10px;
+  font-weight: bold;
+}
+.price{
+  color: red;
+}
+.step{
+  padding-top: 40px;
+  padding-bottom: 50px;
+}
+.topic{
+  padding-bottom: 8px;
+  font-weight: bold;
+}
+.line{
+  width: 100%;
+  margin-top: 20px;
+  border-top:2px solid black;
+}
+.btn button{
+  
+  background-color: rgb(197, 14, 14);
+  /* text-align: center; */
+  color: white;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+}

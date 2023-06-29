@@ -1,0 +1,22 @@
+<view class="img">
+  <image src="{{imageUrl+proInfo.image.imageurl}}"></image>
+</view>
+<view>
+  <view class="info">
+    <view class="name">{{proInfo.proname}}</view>
+    <view class="price">价格：￥{{proInfo.proprice}}</view>
+  </view>
+  <view class="plain">{{proInfo.proexplain}}</view>
+</view>
+
+<view class="line"></view>
+<view class="step">
+  <view>
+    <text class="topic">详情描述</text>
+  </view>
+  <text class="stepinfo">{{proInfo.prostep}}</text>
+
+</view>
+<view class="btn">
+  <button bindtap="handletap" style="width: 100%;">立即预定</button>
+</view>
